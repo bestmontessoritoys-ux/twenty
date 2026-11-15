@@ -1966,6 +1966,7 @@ input CreateViewFieldInput {
   isCanonical: Boolean = true
   isVisible: Boolean = true
   position: Float = 0
+  relationTargetFieldMetadataId: UUID
   settings: ViewFieldSettingsInput
   size: Float = 0
   viewFieldGroupId: UUID
@@ -5770,6 +5771,7 @@ input UpdateViewFieldInputUpdates {
   aggregateOperation: AggregateOperations
   isVisible: Boolean
   position: Float
+  relationTargetFieldMetadataId: UUID
   settings: ViewFieldSettingsInput
   size: Float
   viewFieldGroupId: UUID
@@ -6003,6 +6005,7 @@ input UpsertViewFieldWithScopeInput {
   isCanonical: Boolean
   isVisible: Boolean
   position: Float
+  relationTargetFieldMetadataId: UUID
 
   """
   The filters and sorts scoping the related records; without filters or sorts the scope is removed
@@ -6440,6 +6443,7 @@ type ViewField {
   isSystemSideEffect: Boolean!
   isVisible: Boolean!
   position: Float!
+  relationTargetFieldMetadataId: UUID
   settings: ViewFieldSettings
   size: Float!
   universalIdentifier: UUID!

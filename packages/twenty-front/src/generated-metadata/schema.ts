@@ -2087,6 +2087,7 @@ export type CreateViewFieldInput = {
   isCanonical?: InputMaybe<Scalars['Boolean']['input']>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
   position?: InputMaybe<Scalars['Float']['input']>;
+  relationTargetFieldMetadataId?: InputMaybe<Scalars['UUID']['input']>;
   settings?: InputMaybe<ViewFieldSettingsInput>;
   size?: InputMaybe<Scalars['Float']['input']>;
   viewFieldGroupId?: InputMaybe<Scalars['UUID']['input']>;
@@ -8190,6 +8191,7 @@ export type UpdateViewFieldInputUpdates = {
   aggregateOperation?: InputMaybe<AggregateOperations>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
   position?: InputMaybe<Scalars['Float']['input']>;
+  relationTargetFieldMetadataId?: InputMaybe<Scalars['UUID']['input']>;
   settings?: InputMaybe<ViewFieldSettingsInput>;
   size?: InputMaybe<Scalars['Float']['input']>;
   viewFieldGroupId?: InputMaybe<Scalars['UUID']['input']>;
@@ -8404,6 +8406,7 @@ export type UpsertViewFieldWithScopeInput = {
   isCanonical?: InputMaybe<Scalars['Boolean']['input']>;
   isVisible?: InputMaybe<Scalars['Boolean']['input']>;
   position?: InputMaybe<Scalars['Float']['input']>;
+  relationTargetFieldMetadataId?: InputMaybe<Scalars['UUID']['input']>;
   /** The filters and sorts scoping the related records; without filters or sorts the scope is removed */
   scope?: InputMaybe<ViewFieldScopeInput>;
   settings?: InputMaybe<ViewFieldSettingsInput>;
@@ -8848,6 +8851,7 @@ export type ViewField = {
   isSystemSideEffect: Scalars['Boolean']['output'];
   isVisible: Scalars['Boolean']['output'];
   position: Scalars['Float']['output'];
+  relationTargetFieldMetadataId?: Maybe<Scalars['UUID']['output']>;
   settings?: Maybe<ViewFieldSettings>;
   size: Scalars['Float']['output'];
   universalIdentifier: Scalars['UUID']['output'];
