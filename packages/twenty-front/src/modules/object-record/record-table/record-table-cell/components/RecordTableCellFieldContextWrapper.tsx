@@ -42,20 +42,20 @@ export const RecordTableCellFieldContextWrapper = ({
   const lookupTarget =
     columnDescriptorByRecordFieldId[recordField.id]?.lookupTarget;
 
+  // The lookup cell keys its own editor instance to the related record
   if (isDefined(lookupTarget)) {
     return (
-      <RecordFieldComponentInstanceContext.Provider value={{ instanceId }}>
-        <RecordTableCellLookupFieldContext
-          key={instanceId}
-          fieldMetadataItem={fieldMetadataItem}
-          relationObjectMetadataItem={lookupTarget.relationObjectMetadataItem}
-          lookupTargetFieldMetadataItem={
-            lookupTarget.lookupTargetFieldMetadataItem
-          }
-        >
-          {children}
-        </RecordTableCellLookupFieldContext>
-      </RecordFieldComponentInstanceContext.Provider>
+      <RecordTableCellLookupFieldContext
+        key={instanceId}
+        recordFieldId={recordField.id}
+        fieldMetadataItem={fieldMetadataItem}
+        relationObjectMetadataItem={lookupTarget.relationObjectMetadataItem}
+        lookupTargetFieldMetadataItem={
+          lookupTarget.lookupTargetFieldMetadataItem
+        }
+      >
+        {children}
+      </RecordTableCellLookupFieldContext>
     );
   }
 
