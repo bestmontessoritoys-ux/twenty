@@ -105,7 +105,13 @@ describe('DraftEmailWorkflowAction', () => {
           connectedAccountId: 'account-1',
           recipients: { to: 'test@example.com' },
           subject: 'Draft Test',
-          body: '{{trigger.name}}',
+          body: JSON.stringify({
+            type: 'doc',
+            attrs: { schemaVersion: EMAIL_DOCUMENT_SCHEMA_VERSION },
+            content: [
+              { type: 'htmlDocument', attrs: { html: '{{trigger.name}}' } },
+            ],
+          }),
         }),
       ],
       context: { trigger: { name: 'John' } },
@@ -114,11 +120,11 @@ describe('DraftEmailWorkflowAction', () => {
 
     expect(mockDraftEmailTool.execute).toHaveBeenCalledWith(
       expect.objectContaining({
-        body: JSON.stringify({
+        body: {
           type: 'doc',
           attrs: { schemaVersion: EMAIL_DOCUMENT_SCHEMA_VERSION },
           content: [{ type: 'htmlDocument', attrs: { html: 'John' } }],
-        }),
+        },
       }),
       expect.objectContaining({ workspaceId: 'workspace-1' }),
     );
@@ -132,7 +138,6 @@ describe('DraftEmailWorkflowAction', () => {
           connectedAccountId: 'account-1',
           recipients: { to: 'test@example.com' },
           subject: 'Draft Test',
-          body: 'hello',
         }),
       ],
       context: {},
@@ -154,6 +159,39 @@ describe('DraftEmailWorkflowAction', () => {
     );
   });
 
+  it('logs the resolved body when the draft fails', async () => {
+    mockDraftEmailTool.execute.mockResolvedValue({
+      success: false,
+      message: 'Failed',
+      error: 'No connected account',
+    });
+
+    await action.execute({
+      currentStepId: 'step-1',
+      steps: [
+        buildDraftEmailStep({
+          connectedAccountId: 'account-1',
+          recipients: { to: 'test@example.com' },
+          subject: 'Draft Test',
+          body: JSON.stringify({
+            type: 'doc',
+            attrs: { schemaVersion: EMAIL_DOCUMENT_SCHEMA_VERSION },
+            content: [
+              { type: 'htmlDocument', attrs: { html: 'Hi {{trigger.name}}' } },
+            ],
+          }),
+        }),
+      ],
+      context: { trigger: { name: 'John' } },
+      runInfo: { workspaceId: 'workspace-1', workflowRunId: 'run-1' },
+    });
+
+    const { bodyPreview } = mockSetStepLog.mock.calls[0][0].stepLog.details;
+
+    expect(bodyPreview).toContain('Hi John');
+    expect(bodyPreview).not.toContain('{{trigger.name}}');
+  });
+
   describe('sender resolution', () => {
     const executeWithSender = (connectedAccountId: string) =>
       action.execute({
@@ -163,7 +201,6 @@ describe('DraftEmailWorkflowAction', () => {
             connectedAccountId,
             recipients: { to: 'test@example.com' },
             subject: 'Draft Test',
-            body: 'hello',
           }),
         ],
         context: {},
