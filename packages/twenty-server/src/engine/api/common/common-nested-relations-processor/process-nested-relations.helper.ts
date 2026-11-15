@@ -293,7 +293,7 @@ export class ProcessNestedRelationsHelper {
           column:
             relationType === RelationType.ONE_TO_MANY
               ? `"${fieldMetadataTargetRelationColumnName}"`
-              : 'id',
+              : '"id"',
           ids: relationIds,
           relationType,
           parentRecordsCount: parentObjectRecords.length,

@@ -2,17 +2,22 @@ import { isRecordFieldSupportedByViewType } from '@/object-record/record-field/u
 import { ViewType } from '@/views/types/ViewType';
 
 describe('isRecordFieldSupportedByViewType', () => {
-  it('should keep extra columns in tables only', () => {
+  it('should keep extra columns in tables, boards and calendars', () => {
+    expect(
+      [ViewType.TABLE, ViewType.KANBAN, ViewType.CALENDAR].map((viewType) =>
+        isRecordFieldSupportedByViewType({
+          recordField: { isCanonical: false },
+          viewType,
+        }),
+      ),
+    ).toEqual([true, true, true]);
+  });
+
+  it('should keep extra columns out of the list layout', () => {
     expect(
       isRecordFieldSupportedByViewType({
         recordField: { isCanonical: false },
-        viewType: ViewType.TABLE,
-      }),
-    ).toBe(true);
-    expect(
-      isRecordFieldSupportedByViewType({
-        recordField: { isCanonical: false },
-        viewType: ViewType.KANBAN,
+        viewType: ViewType.LIST,
       }),
     ).toBe(false);
   });

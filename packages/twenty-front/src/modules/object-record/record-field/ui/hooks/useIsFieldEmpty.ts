@@ -9,7 +9,7 @@ import { FieldContext } from '@/object-record/record-field/ui/contexts/FieldCont
 import { getFieldValueSourceDefinition } from '@/object-record/record-field/ui/utils/getFieldValueSourceDefinition';
 
 export const useIsFieldEmpty = () => {
-  const { recordId, fieldDefinition, overridenIsFieldEmpty } =
+  const { recordId, fieldDefinition, overridenIsFieldEmpty, fieldValueKey } =
     useContext(FieldContext);
 
   const coreRecordReferenceFields = useContext(
@@ -23,7 +23,7 @@ export const useIsFieldEmpty = () => {
 
   const fieldValue = useRecordFieldValue(
     recordId,
-    fieldValueSourceDefinition.metadata.fieldName,
+    fieldValueKey ?? fieldValueSourceDefinition.metadata.fieldName,
     fieldValueSourceDefinition,
   );
 
