@@ -6,7 +6,6 @@ import { type AllFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/
 import { findFlatEntityByIdInFlatEntityMapsOrThrow } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-id-in-flat-entity-maps-or-throw.util';
 import { resolveEntityRelationUniversalIdentifiers } from 'src/engine/metadata-modules/flat-entity/utils/resolve-entity-relation-universal-identifiers.util';
 import { type FlatRoleTarget } from 'src/engine/metadata-modules/flat-role-target/types/flat-role-target.type';
-import { findFlatRoleTargetFromForeignKey } from 'src/engine/metadata-modules/flat-role-target/utils/find-flat-role-target-from-foreign-key.util';
 import { type CreateRoleTargetInput } from 'src/engine/metadata-modules/role-target/types/create-role-target.input';
 
 export const fromCreateRoleTargetInputToFlatRoleTargetToCreate = ({
@@ -29,8 +28,13 @@ export const fromCreateRoleTargetInputToFlatRoleTargetToCreate = ({
   flatRoleTargetsToDelete: FlatRoleTarget[];
 } => {
   const now = new Date();
-  const { roleId, targetId, targetMetadataForeignKey, universalIdentifier } =
-    createRoleTargetInput;
+  const {
+    roleId,
+    targetId,
+    targetMetadataForeignKey,
+    universalIdentifier,
+    isAdditional = false,
+  } = createRoleTargetInput;
 
   const { roleUniversalIdentifier } = resolveEntityRelationUniversalIdentifiers(
     {
@@ -61,6 +65,7 @@ export const fromCreateRoleTargetInputToFlatRoleTargetToCreate = ({
     roleId,
     roleUniversalIdentifier,
     userWorkspaceId: null,
+    isAdditional,
     agentId: null,
     agentUniversalIdentifier,
     apiKeyId: null,
@@ -77,16 +82,17 @@ export const fromCreateRoleTargetInputToFlatRoleTargetToCreate = ({
     [targetMetadataForeignKey]: targetId,
   };
 
-  const flatRoleTargetToDelete = findFlatRoleTargetFromForeignKey({
-    flatRoleTargetMaps,
-    targetMetadataForeignKey,
-    targetId,
-  });
+  // an additional role is added next to the assigned one, which only another assigned role replaces.
+  // Assigning a role the target already holds as an additional one takes the place of that target too
+  const flatRoleTargetsToDelete = isAdditional
+    ? []
+    : Object.values(flatRoleTargetMaps.byUniversalIdentifier)
+        .filter(isDefined)
+        .filter(
+          (flatRoleTarget) =>
+            flatRoleTarget[targetMetadataForeignKey] === targetId &&
+            (!flatRoleTarget.isAdditional || flatRoleTarget.roleId === roleId),
+        );
 
-  return {
-    flatRoleTargetToCreate: flatRoleTargetToCreate,
-    flatRoleTargetsToDelete: isDefined(flatRoleTargetToDelete)
-      ? [flatRoleTargetToDelete]
-      : [],
-  };
+  return { flatRoleTargetToCreate, flatRoleTargetsToDelete };
 };
