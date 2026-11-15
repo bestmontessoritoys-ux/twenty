@@ -1,0 +1,77 @@
+import { type EnrichedObjectMetadataItem } from '@/object-metadata/types/EnrichedObjectMetadataItem';
+import { type FieldMetadataItem } from '@/object-metadata/types/FieldMetadataItem';
+import { formatFieldMetadataItemAsFieldDefinition } from '@/object-metadata/utils/formatFieldMetadataItemAsFieldDefinition';
+import { getObjectPermissionsForObject } from '@/object-metadata/utils/getObjectPermissionsForObject';
+import { FieldContext } from '@/object-record/record-field/ui/contexts/FieldContext';
+import { useRecordIndexContextOrThrow } from '@/object-record/record-index/contexts/RecordIndexContext';
+import { useRecordFieldValue } from '@/object-record/record-store/hooks/useRecordFieldValue';
+import { useRecordRestrictedFieldNames } from '@/object-record/record-store/hooks/useRecordRestrictedFieldNames';
+import { useRecordTableRowContextOrThrow } from '@/object-record/record-table/contexts/RecordTableRowContext';
+import { type ObjectRecord } from '@/object-record/types/ObjectRecord';
+import { type ReactNode } from 'react';
+import {
+  canAccessThroughAllRecordsOrRlsPermission,
+  findById,
+} from 'twenty-shared/utils';
+
+type RecordTableCellLookupFieldContextProps = {
+  fieldMetadataItem: FieldMetadataItem;
+  relationObjectMetadataItem: EnrichedObjectMetadataItem;
+  lookupTargetFieldMetadataItem: FieldMetadataItem;
+  children: ReactNode;
+};
+
+export const RecordTableCellLookupFieldContext = ({
+  fieldMetadataItem,
+  relationObjectMetadataItem,
+  lookupTargetFieldMetadataItem,
+  children,
+}: RecordTableCellLookupFieldContextProps) => {
+  const { recordId } = useRecordTableRowContextOrThrow();
+  const {
+    objectPermissionsByObjectMetadataId,
+    fieldDefinitionByFieldMetadataItemId,
+  } = useRecordIndexContextOrThrow();
+
+  const relatedRecord = useRecordFieldValue<ObjectRecord | null>(
+    recordId,
+    fieldMetadataItem.name,
+    fieldDefinitionByFieldMetadataItemId[fieldMetadataItem.id],
+  );
+
+  const relatedRecordId = relatedRecord?.id ?? '';
+
+  const restrictedFieldNames = useRecordRestrictedFieldNames(relatedRecordId);
+
+  const canReadRelatedRecord = canAccessThroughAllRecordsOrRlsPermission({
+    objectRecordsPermissions: getObjectPermissionsForObject(
+      objectPermissionsByObjectMetadataId,
+      relationObjectMetadataItem.id,
+    ),
+    operationType: 'read',
+  });
+
+  return (
+    <FieldContext.Provider
+      value={{
+        fieldMetadataItemId: lookupTargetFieldMetadataItem.id,
+        recordId: relatedRecordId,
+        fieldDefinition: formatFieldMetadataItemAsFieldDefinition({
+          field: lookupTargetFieldMetadataItem,
+          objectMetadataItem: relationObjectMetadataItem,
+        }),
+        isLabelIdentifier: false,
+        displayedMaxRows: 1,
+        isRecordFieldReadOnly: true,
+        isForbidden:
+          !canReadRelatedRecord ||
+          !relationObjectMetadataItem.readableFields.some(
+            findById(lookupTargetFieldMetadataItem.id),
+          ) ||
+          restrictedFieldNames.includes(lookupTargetFieldMetadataItem.name),
+      }}
+    >
+      {children}
+    </FieldContext.Provider>
+  );
+};
