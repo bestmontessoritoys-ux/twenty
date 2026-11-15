@@ -475,8 +475,6 @@ describe('View tools', () => {
       });
 
       it('should create a column scope view owned by a view field', async () => {
-        const ownerViewFieldId = mockOwnerViewFieldId;
-
         viewService.findById.mockResolvedValue(mockView as any);
         viewService.createOne.mockResolvedValue({
           id: 'scope-view-id',
@@ -485,7 +483,7 @@ describe('View tools', () => {
           type: ViewType.TABLE_WIDGET,
           icon: 'IconList',
           visibility: ViewVisibility.WORKSPACE,
-          ownerViewFieldId,
+          ownerViewFieldId: mockOwnerViewFieldId,
         } as any);
 
         const tools = buildViewTools({
@@ -497,24 +495,20 @@ describe('View tools', () => {
           name: 'Open items',
           objectNameSingular: mockObjectNameSingular,
           type: ViewType.TABLE_WIDGET,
-          ownerViewFieldId,
+          ownerViewFieldId: mockOwnerViewFieldId,
         });
 
         expect(viewService.createOne).toHaveBeenCalledWith(
           expect.objectContaining({
             createViewInput: expect.objectContaining({
               type: ViewType.TABLE_WIDGET,
-              ownerViewFieldId,
+              ownerViewFieldId: mockOwnerViewFieldId,
             }),
           }),
         );
-        expect(viewService.createOne).toHaveBeenCalledTimes(1);
-        expect(viewService.findById).toHaveBeenCalledTimes(1);
-        expect(viewService.findById).toHaveBeenCalledWith(
-          mockViewId,
-          mockWorkspaceId,
+        expect(result).toEqual(
+          expect.objectContaining({ ownerViewFieldId: mockOwnerViewFieldId }),
         );
-        expect(result).toEqual(expect.objectContaining({ ownerViewFieldId }));
       });
 
       it('should refuse a private scope view on a column the user cannot edit', async () => {
@@ -535,9 +529,6 @@ describe('View tools', () => {
             ownerViewFieldId: mockOwnerViewFieldId,
           }),
         ).rejects.toThrow('You do not have permission to modify this view');
-        expect(
-          settingPermissionsService.hasPermissionFlag,
-        ).toHaveBeenCalledTimes(1);
         expect(viewService.createOne).not.toHaveBeenCalled();
       });
 

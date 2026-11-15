@@ -47,8 +47,7 @@ export class CreateViewFieldTool extends BaseTool<
         aggregateOperation: input.aggregateOperation,
         isCanonical: input.isCanonical,
         settings: input.settings,
-        relationTargetFieldMetadataId:
-          input.relationTargetFieldMetadataId ?? undefined,
+        relationTargetFieldMetadataId: input.relationTargetFieldMetadataId,
       },
       workspaceId,
     });

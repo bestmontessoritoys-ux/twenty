@@ -14,12 +14,6 @@ const APP_ROLE_ID = uuidv4();
 const PERSON_VIEW_ID = uuidv4();
 const COMPANY_NAME_VIEW_FIELD_ID = uuidv4();
 
-type FieldNode = {
-  id: string;
-  name: string;
-  object: { nameSingular: string };
-};
-
 describe('Sync application should succeed with a lookup view field', () => {
   beforeAll(async () => {
     await setupApplicationForSync({
@@ -96,26 +90,19 @@ describe('Sync application should succeed with a lookup view field', () => {
     const { fields } = await findManyFieldsMetadata({
       expectToFail: false,
       input: { filter: {}, paging: { first: 1000 } },
-      gqlFields: `
-        id
-        name
-        object {
-          nameSingular
-        }
-      `,
+      gqlFields: 'id universalIdentifier',
     });
 
-    const companyNameField = fields
-      .map(({ node }: { node: FieldNode }) => node)
-      .find(
-        (field: FieldNode) =>
-          field.name === 'name' && field.object.nameSingular === 'company',
-      );
+    const companyNameFieldId = fields.find(
+      ({ node }: { node: { universalIdentifier: string } }) =>
+        node.universalIdentifier ===
+        STANDARD_OBJECTS.company.fields.name.universalIdentifier,
+    )?.node.id;
 
+    expect(companyNameFieldId).toBeDefined();
     expect(lookupViewField?.isCanonical).toBe(false);
     expect(lookupViewField?.relationTargetFieldMetadataId).toBe(
-      companyNameField?.id,
+      companyNameFieldId,
     );
-    expect(companyNameField?.id).toBeDefined();
   });
 });

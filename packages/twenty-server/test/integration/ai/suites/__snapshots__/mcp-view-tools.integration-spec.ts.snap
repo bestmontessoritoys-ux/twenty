@@ -511,16 +511,9 @@ VIEW TYPES: TABLE (default), LIST, KANBAN (requires mainGroupByFieldName, a SELE
           "type": "number",
         },
         "relationTargetFieldMetadataId": {
-          "anyOf": [
-            {
-              "format": "uuid",
-              "type": "string",
-            },
-            {
-              "type": "null",
-            },
-          ],
           "description": "On an extra (non-canonical) column of a many-to-one relation field, show this field of the related record instead of the record. Must be a non-relation field of the related object.",
+          "format": "uuid",
+          "type": "string",
         },
         "settings": {
           "anyOf": [
@@ -730,16 +723,9 @@ VIEW TYPES: TABLE (default), LIST, KANBAN (requires mainGroupByFieldName, a SELE
                 "type": "number",
               },
               "relationTargetFieldMetadataId": {
-                "anyOf": [
-                  {
-                    "format": "uuid",
-                    "type": "string",
-                  },
-                  {
-                    "type": "null",
-                  },
-                ],
                 "description": "On an extra (non-canonical) column of a many-to-one relation field, show this field of the related record instead of the record. Must be a non-relation field of the related object.",
+                "format": "uuid",
+                "type": "string",
               },
               "settings": {
                 "anyOf": [
