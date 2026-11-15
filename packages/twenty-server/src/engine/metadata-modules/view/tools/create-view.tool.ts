@@ -94,6 +94,12 @@ const createViewInputSchema = z.object({
     .describe(
       'Field names to display in the view as columns (for TABLE) or cards (for KANBAN/CALENDAR). Fields are displayed in the order provided. Use get_field_metadata to find available field names.',
     ),
+  ownerViewFieldId: z
+    .uuid()
+    .optional()
+    .describe(
+      "Makes this view the scope of one column: its filters and sorts decide which related records that column shows. The owner must be an extra (non-canonical) column of a one-to-many relation field, and this view must be a TABLE_WIDGET on the relation's target object. The view is deleted with the column.",
+    ),
 });
 
 @DefineTool({
@@ -121,6 +127,7 @@ export class CreateViewTool extends BaseTool<typeof createViewInputSchema> {
   }: ToolExecuteArgs<typeof createViewInputSchema>): Promise<ToolOutput> {
     await this.viewAccessService.canUserCreateView({
       visibility: input.visibility,
+      ownerViewFieldId: input.ownerViewFieldId,
       accessContext: { workspaceId, userWorkspaceId, authContext },
     });
 
@@ -229,6 +236,7 @@ export class CreateViewTool extends BaseTool<typeof createViewInputSchema> {
         calendarLayout: input.calendarLayout,
         calendarFieldMetadataId,
         calendarEndFieldMetadataId,
+        ownerViewFieldId: input.ownerViewFieldId,
       },
       workspaceId,
       createdByUserWorkspaceId: userWorkspaceId,
@@ -259,6 +267,7 @@ export class CreateViewTool extends BaseTool<typeof createViewInputSchema> {
         type: view.type,
         icon: view.icon,
         visibility: view.visibility,
+        ownerViewFieldId: view.ownerViewFieldId,
       },
     };
   }

@@ -103,6 +103,22 @@ describe('View tools', () => {
     universalIdentifiersByApplicationId: {},
   };
 
+  const mockOwnerViewFieldId = '20202020-0000-4000-8000-0000000000aa';
+
+  const mockFlatViewFieldMaps = {
+    byUniversalIdentifier: {
+      'owner-view-field-universal-id': {
+        id: mockOwnerViewFieldId,
+        viewId: mockViewId,
+        universalIdentifier: 'owner-view-field-universal-id',
+      },
+    },
+    universalIdentifierById: {
+      [mockOwnerViewFieldId]: 'owner-view-field-universal-id',
+    },
+    universalIdentifiersByApplicationId: {},
+  };
+
   const mockView = {
     id: mockViewId,
     name: 'All Companies',
@@ -205,6 +221,7 @@ describe('View tools', () => {
               flatObjectMetadataMaps: mockFlatObjectMetadataMaps,
               flatFieldMetadataMaps: mockFlatFieldMetadataMaps,
               flatViewSortMaps: mockFlatViewSortMaps,
+              flatViewFieldMaps: mockFlatViewFieldMaps,
             }),
           },
         },
@@ -455,6 +472,64 @@ describe('View tools', () => {
           icon: 'IconTable',
           visibility: ViewVisibility.WORKSPACE,
         });
+      });
+
+      it('should create a column scope view owned by a view field', async () => {
+        viewService.findById.mockResolvedValue(mockView as any);
+        viewService.createOne.mockResolvedValue({
+          id: 'scope-view-id',
+          name: 'Open items',
+          objectMetadataId: mockObjectMetadataId,
+          type: ViewType.TABLE_WIDGET,
+          icon: 'IconList',
+          visibility: ViewVisibility.WORKSPACE,
+          ownerViewFieldId: mockOwnerViewFieldId,
+        } as any);
+
+        const tools = buildViewTools({
+          workspaceId: mockWorkspaceId,
+          userWorkspaceId: mockUserWorkspaceId,
+        });
+
+        const { result } = await tools.create_view.execute({
+          name: 'Open items',
+          objectNameSingular: mockObjectNameSingular,
+          type: ViewType.TABLE_WIDGET,
+          ownerViewFieldId: mockOwnerViewFieldId,
+        });
+
+        expect(viewService.createOne).toHaveBeenCalledWith(
+          expect.objectContaining({
+            createViewInput: expect.objectContaining({
+              type: ViewType.TABLE_WIDGET,
+              ownerViewFieldId: mockOwnerViewFieldId,
+            }),
+          }),
+        );
+        expect(result).toEqual(
+          expect.objectContaining({ ownerViewFieldId: mockOwnerViewFieldId }),
+        );
+      });
+
+      it('should refuse a private scope view on a column the user cannot edit', async () => {
+        viewService.findById.mockResolvedValue(mockView as any);
+        settingPermissionsService.hasPermissionFlag.mockResolvedValue(false);
+
+        const tools = buildViewTools({
+          workspaceId: mockWorkspaceId,
+          userWorkspaceId: mockUserWorkspaceId,
+        });
+
+        await expect(
+          tools.create_view.execute({
+            name: 'Open items',
+            objectNameSingular: mockObjectNameSingular,
+            type: ViewType.TABLE_WIDGET,
+            visibility: ViewVisibility.UNLISTED,
+            ownerViewFieldId: mockOwnerViewFieldId,
+          }),
+        ).rejects.toThrow('You do not have permission to modify this view');
+        expect(viewService.createOne).not.toHaveBeenCalled();
       });
 
       it('should create view fields when fieldNames is provided', async () => {

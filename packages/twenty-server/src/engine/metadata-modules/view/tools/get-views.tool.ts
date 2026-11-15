@@ -72,6 +72,7 @@ export class GetViewsTool extends BaseTool<typeof getViewsInputSchema> {
           icon: view.icon,
           visibility: view.visibility,
           position: view.position,
+          ownerViewFieldId: view.ownerViewFieldId,
         })),
       },
     };

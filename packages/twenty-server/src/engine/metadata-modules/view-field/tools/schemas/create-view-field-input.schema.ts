@@ -40,4 +40,10 @@ export const createViewFieldInputSchema = z.object({
       "False adds an extra column for a field the view already shows. Only extra columns accept settings; the field's own column follows the data model.",
     ),
   settings: viewFieldSettingsSchema.nullable().optional(),
+  relationTargetFieldMetadataId: z
+    .uuid()
+    .optional()
+    .describe(
+      'On an extra (non-canonical) column of a many-to-one relation field, show this field of the related record instead of the record. Must be a non-relation field of the related object.',
+    ),
 });

@@ -388,6 +388,11 @@ VIEW TYPES: TABLE (default), LIST, KANBAN (requires mainGroupByFieldName, a SELE
           "description": "Object name this view is for (e.g., "task", "person", "company")",
           "type": "string",
         },
+        "ownerViewFieldId": {
+          "description": "Makes this view the scope of one column: its filters and sorts decide which related records that column shows. The owner must be an extra (non-canonical) column of a one-to-many relation field, and this view must be a TABLE_WIDGET on the relation's target object. The view is deleted with the column.",
+          "format": "uuid",
+          "type": "string",
+        },
         "type": {
           "default": "TABLE",
           "description": "View type. Use the *_WIDGET variants (TABLE_WIDGET, KANBAN_WIDGET, LIST_WIDGET, CALENDAR_WIDGET) for views backing a dashboard widget so they stay out of record index view pickers.",
@@ -505,6 +510,11 @@ VIEW TYPES: TABLE (default), LIST, KANBAN (requires mainGroupByFieldName, a SELE
           "description": "Position of the field in the view (0-based).",
           "type": "number",
         },
+        "relationTargetFieldMetadataId": {
+          "description": "On an extra (non-canonical) column of a many-to-one relation field, show this field of the related record instead of the record. Must be a non-relation field of the related object.",
+          "format": "uuid",
+          "type": "string",
+        },
         "settings": {
           "anyOf": [
             {
@@ -591,6 +601,18 @@ VIEW TYPES: TABLE (default), LIST, KANBAN (requires mainGroupByFieldName, a SELE
         "position": {
           "description": "Position of the field.",
           "type": "number",
+        },
+        "relationTargetFieldMetadataId": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string",
+            },
+            {
+              "type": "null",
+            },
+          ],
+          "description": "On an extra (non-canonical) column of a many-to-one relation field, show this field of the related record instead of the record. Must be a non-relation field of the related object. Null shows the related record again.",
         },
         "settings": {
           "anyOf": [
@@ -700,6 +722,11 @@ VIEW TYPES: TABLE (default), LIST, KANBAN (requires mainGroupByFieldName, a SELE
                 "description": "Position of the field in the view (0-based).",
                 "type": "number",
               },
+              "relationTargetFieldMetadataId": {
+                "description": "On an extra (non-canonical) column of a many-to-one relation field, show this field of the related record instead of the record. Must be a non-relation field of the related object.",
+                "format": "uuid",
+                "type": "string",
+              },
               "settings": {
                 "anyOf": [
                   {
@@ -800,6 +827,18 @@ VIEW TYPES: TABLE (default), LIST, KANBAN (requires mainGroupByFieldName, a SELE
               "position": {
                 "description": "Position of the field.",
                 "type": "number",
+              },
+              "relationTargetFieldMetadataId": {
+                "anyOf": [
+                  {
+                    "format": "uuid",
+                    "type": "string",
+                  },
+                  {
+                    "type": "null",
+                  },
+                ],
+                "description": "On an extra (non-canonical) column of a many-to-one relation field, show this field of the related record instead of the record. Must be a non-relation field of the related object. Null shows the related record again.",
               },
               "settings": {
                 "anyOf": [
